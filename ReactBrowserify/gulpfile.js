@@ -5,10 +5,10 @@ var Connect = require('gulp-connect');
 var Concat = require('gulp-concat');
 var Lint = require('gulp-eslint');
 
+var Source = require('vinyl-source-stream');
+
 var Browserify = require('browserify');
 var babelify = require('babelify');
-
-var Source = require('vinyl-source-stream');
 
 var Config = {
     port: 9005,

@@ -3,12 +3,12 @@
 var Gulp = require('gulp');
 var Connect = require('gulp-connect');
 var Concat = require('gulp-concat');
-var Lint = require('gulp-eslint');
-
-var Browserify = require('browserify');
-var babelify = require('babelify');
 
 var Source = require('vinyl-source-stream');
+
+var Webpack = require('webpack');
+var WebpackDevServer = require('webpack-dev-server');
+var WebPackConfig = require('./webpack.config');
 
 var Config = {
     port: 9005,
@@ -62,12 +62,6 @@ Gulp.task('images', function() {
         .pipe(Gulp.dest(Config.paths.dist));
 });
 
-Gulp.task('lint', function () {
-    return Gulp.src(Config.paths.js)
-        .pipe(Lint())
-        .pipe(Lint.format());
-});
-
 Gulp.task('connect', function () {
     Connect.server({
         root: ['wwwroot'],
@@ -82,4 +76,40 @@ Gulp.task('watch', function () {
     Gulp.watch(Config.paths.js, ['js', 'lint']);
 });
 
-Gulp.task('default', ['html', 'css', 'js', 'images', 'lint', 'connect', 'watch']);
+Gulp.task('webpack', function () {
+    Webpack(WebPackConfig, function (err, stats) {
+        if (err) {
+            console.log(err);
+        }
+    });
+
+    var compiler = Webpack(WebPackConfig, function (err, stats) {
+        if (err) {
+            console.log(err);
+        }
+    });
+
+    new WebpackDevServer(compiler, {
+        contentBase: 'wwwroot',
+        stats: {
+            colors: true,
+            progress: true
+        }
+    }).listen(9005, 'localhost', function (err) {
+        if (err) {
+            console.log(err);
+        }
+        console.log('Listening at localhost:9005');
+    });
+});
+
+Gulp.task('gosho', function () {
+    var compiler = Webpack(WebPackConfig, function (err, stats) {
+        if (err) {
+            console.log(err);
+        }
+    });
+});
+
+
+Gulp.task('default', ['webpack']);
