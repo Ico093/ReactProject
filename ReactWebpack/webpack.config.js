@@ -1,18 +1,26 @@
 ﻿var path = require('path');
+var webpack = require('webpack');
 
 module.exports = {
-    context: __dirname,
-    entry: './scripts/main.js',
+    devtool: 'source-map',
+    entry: [
+        'webpack-dev-server/client?http://localhost:9005',
+        'webpack/hot/only-dev-server',
+        './scripts/main.jsx'
+    ],
     output: {
         path: path.resolve('wwwroot/scripts/'),
-        filename: 'bundle.js'
+        filename: 'bundle.js',
+        publicPath: '/scripts/'
     },
-    
-    devServer: {
-        contentBase: 'wwwroot'
-    },
-
-    resolve: {
-        extensions: ['', 'js']
+    plugins: [
+      new webpack.HotModuleReplacementPlugin()
+    ],
+    module: {
+        loaders: [{
+            test: /\.jsx?$/,
+            include: path.join(__dirname, 'scripts'),
+            loaders: ['react-hot', 'babel-loader?presets[]=es2015,presets[]=react']
+        }]
     }
 };

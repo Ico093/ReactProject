@@ -44,7 +44,7 @@ Gulp.task('css', function () {
 });
 
 Gulp.task('js', function () {
-    Browserify({entries: Config.paths.mainJs, extensions: ['.jsx', '.js'], debug: true})
+    Browserify({ entries: Config.paths.mainJs, extensions: ['.jsx', '.js'], debug: true })
         .transform(babelify, { presets: ["es2015", "react"] })
         .bundle()
         .on('error', console.error.bind(console))
@@ -53,7 +53,7 @@ Gulp.task('js', function () {
         .pipe(Connect.reload());
 });
 
-Gulp.task('images', function() {
+Gulp.task('images', function () {
     Gulp.src(Config.paths.images)
         .pipe(Gulp.dest(Config.paths.dist + '/images'))
         .pipe(Connect.reload());
@@ -76,21 +76,28 @@ Gulp.task('watch', function () {
     Gulp.watch(Config.paths.js, ['js', 'lint']);
 });
 
-Gulp.task('webpack', function () {
+Gulp.task('webpack-dev-build', function () {
     Webpack(WebPackConfig, function (err, stats) {
         if (err) {
             console.log(err);
         }
     });
+});
 
-    var compiler = Webpack(WebPackConfig, function (err, stats) {
+Gulp.task('webpack-production-build', function () {
+    Webpack(WebPackConfig, function (err, stats) {
         if (err) {
             console.log(err);
         }
     });
+});
 
-    new WebpackDevServer(compiler, {
+Gulp.task('webpack-dev-server', function () {
+    new WebpackDevServer(Webpack(WebPackConfig), {
         contentBase: 'wwwroot',
+        publicPath: '/scripts/',
+        hot: true,
+        historyApiFallback: true,
         stats: {
             colors: true,
             progress: true
@@ -103,13 +110,4 @@ Gulp.task('webpack', function () {
     });
 });
 
-Gulp.task('gosho', function () {
-    var compiler = Webpack(WebPackConfig, function (err, stats) {
-        if (err) {
-            console.log(err);
-        }
-    });
-});
-
-
-Gulp.task('default', ['webpack']);
+Gulp.task('default', ['html', 'css', 'images', 'webpack-dev-server']);

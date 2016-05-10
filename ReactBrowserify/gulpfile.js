@@ -8,7 +8,9 @@ var Lint = require('gulp-eslint');
 var Source = require('vinyl-source-stream');
 
 var Browserify = require('browserify');
-var babelify = require('babelify');
+var Babelify = require('babelify');
+var Watchify = require('watchify');
+var LiveReload = require("livereactload");
 
 var Config = {
     port: 9005,
@@ -44,16 +46,32 @@ Gulp.task('css', function () {
 });
 
 Gulp.task('js', function () {
-    Browserify({entries: Config.paths.mainJs, extensions: ['.jsx', '.js'], debug: true})
-        .transform(babelify, { presets: ["es2015", "react"] })
-        .bundle()
-        .on('error', console.error.bind(console))
-        .pipe(Source('bundle.js'))
-        .pipe(Gulp.dest(Config.paths.dist + '/scripts'))
-        .pipe(Connect.reload());
+    var bundler = Browserify({
+        entries: [Config.paths.mainJs],
+        transform: [[Babelify, { presets: ["es2015", "react"] }]],
+        extensions: ['.jsx', '.js'],
+        debug: true,
+        cache: {},
+        packageCache: {},
+        fullPaths: true,
+        plugin: [LiveReload]
+    });
+
+    var bundle = function () {
+        return bundler
+          .bundle()
+          .on('error', console.error.bind(console))
+          .pipe(Source('bundle.js'))
+          .pipe(Gulp.dest(Config.paths.dist + '/scripts'));
+    };
+
+    bundler = Watchify(bundler);
+    bundler.on('update', bundle);
+
+    return bundle();
 });
 
-Gulp.task('images', function() {
+Gulp.task('images', function () {
     Gulp.src(Config.paths.images)
         .pipe(Gulp.dest(Config.paths.dist + '/images'))
         .pipe(Connect.reload());
@@ -70,7 +88,7 @@ Gulp.task('lint', function () {
 
 Gulp.task('connect', function () {
     Connect.server({
-        root: ['wwwroot'],
+        root: 'wwwroot',
         port: Config.port,
         base: Config.devBaseUrl,
         livereload: true
@@ -79,7 +97,7 @@ Gulp.task('connect', function () {
 
 Gulp.task('watch', function () {
     Gulp.watch(Config.paths.html, ['html']);
-    Gulp.watch(Config.paths.js, ['js', 'lint']);
+    //Gulp.watch(Config.paths.js, ['js', 'lint']);
 });
 
 Gulp.task('default', ['html', 'css', 'js', 'images', 'lint', 'connect', 'watch']);

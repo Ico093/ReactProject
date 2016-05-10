@@ -6,7 +6,7 @@ var About = React.createClass({
     render: function () {
         return (
             <div>
-                <h1>Abouta</h1>
+                <h1>Aboutaaa</h1>
                 <div>
                     This app uses following tech:
                     <ul>
