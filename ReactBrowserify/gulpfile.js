@@ -48,27 +48,29 @@ Gulp.task('css', function () {
 Gulp.task('js', function () {
     var bundler = Browserify({
         entries: [Config.paths.mainJs],
-        transform: [[Babelify, { presets: ["es2015", "react"] }]],
+        transform: [[Babelify, {}]],
+        plugin: [LiveReload],
         extensions: ['.jsx', '.js'],
         debug: true,
         cache: {},
         packageCache: {},
-        fullPaths: true,
-        plugin: [LiveReload]
+        fullPaths: true
     });
 
     var bundle = function () {
-        return bundler
+        return watcher
           .bundle()
           .on('error', console.error.bind(console))
           .pipe(Source('bundle.js'))
           .pipe(Gulp.dest(Config.paths.dist + '/scripts'));
     };
 
-    bundler = Watchify(bundler);
-    bundler.on('update', bundle);
+    var watcher = Watchify(bundler);
+    bundle();
 
-    return bundle();
+    return watcher
+        .on("error", console.log)
+        .on('update', bundle);;
 });
 
 Gulp.task('images', function () {

@@ -1,12 +1,12 @@
 ﻿'use strict';
 
-var React = require('react');
+import React from 'react';
 
 var About = React.createClass({
     render: function () {
         return (
             <div>
-                <h1>Aboutaa</h1>
+                <h1>Abouta</h1>
                 <div>
                     This app uses following tech:
                     <ul>
